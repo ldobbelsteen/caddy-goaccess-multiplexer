@@ -13,9 +13,9 @@ RUN apk add --no-cache \
     tzdata
 
 # Copy the GoAccess binary from the previous stage.
-COPY --from=builds /usr/bin/goaccess /usr/bin/goaccess
-COPY --from=builds /usr/share /usr/share
-COPY --from=builds /usr/share/zoneinfo /usr/share/zoneinfo
+COPY --from=goaccess /usr/bin/goaccess /usr/bin/goaccess
+COPY --from=goaccess /usr/share /usr/share
+COPY --from=goaccess /usr/share/zoneinfo /usr/share/zoneinfo
 
 # Install Python dependencies.
 COPY requirements.txt .
