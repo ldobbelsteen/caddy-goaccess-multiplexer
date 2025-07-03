@@ -13,7 +13,9 @@ def is_authenticated(user, password):
 
 
 def list_log_subdirs():
-    return [d for d in os.listdir(LOG_DIR) if os.path.isdir(os.path.join(LOG_DIR, d))]
+    result = [d for d in os.listdir(LOG_DIR) if os.path.isdir(os.path.join(LOG_DIR, d))]
+    result.sort()
+    return result
 
 
 @route("/")
