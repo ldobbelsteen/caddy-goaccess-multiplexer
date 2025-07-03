@@ -1,17 +1,28 @@
-FROM docker.io/python:3.13-bookworm
+# Take official Alpine-based GoAccess image as source of the binary.
+FROM docker.io/allinurl/goaccess:1.9.4 as goaccess
 
-# Install the latest GoAccess version
-RUN apt update && apt install -y wget gnupg lsb-release ca-certificates && rm -rf /var/lib/apt/lists/*
-RUN wget -O - https://deb.goaccess.io/gnugpg.key | gpg --dearmor -o /usr/share/keyrings/goaccess.gpg && echo "deb [signed-by=/usr/share/keyrings/goaccess.gpg arch=$(dpkg --print-architecture)] https://deb.goaccess.io/ $(lsb_release -cs) main" >/etc/apt/sources.list.d/goaccess.list
-RUN apt update && apt install -y goaccess && rm -rf /var/lib/apt/lists/*
+# Use a Python base for our image.
+FROM docker.io/python:3.13-alpine
 
-# Install Python dependencies
+# Install the same dependencies as the GoAccess image (see https://github.com/allinurl/goaccess/blob/master/Dockerfile).
+RUN apk add --no-cache \
+    gettext-libs \
+    libmaxminddb \
+    ncurses-libs \
+    openssl \
+    tzdata
+
+# Copy the GoAccess binary from the previous stage.
+COPY --from=builds /usr/bin/goaccess /usr/bin/goaccess
+COPY --from=builds /usr/share /usr/share
+COPY --from=builds /usr/share/zoneinfo /usr/share/zoneinfo
+
+# Install Python dependencies.
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# Copy the application code
+# Copy and run the application code.
 COPY app.py .
 STOPSIGNAL SIGINT
 EXPOSE 4876
-
 CMD ["python", "app.py"]
