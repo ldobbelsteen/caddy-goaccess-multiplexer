@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Clone the repository
         id: repository-checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Build image
         id: image-build
