@@ -1,5 +1,5 @@
 # Take official Alpine-based GoAccess image as source of the binary.
-FROM docker.io/allinurl/goaccess:1.9.4 as goaccess
+FROM docker.io/allinurl/goaccess:latest as goaccess
 
 # Use a Python base for our image.
 FROM docker.io/python:3.13-alpine
