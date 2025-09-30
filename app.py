@@ -1,6 +1,8 @@
+from glob import glob
 from bottle import route, run, auth_basic
 import os
 import subprocess
+import re
 
 BASIC_AUTH_USER = os.environ["BASIC_AUTH_USER"]
 BASIC_AUTH_PASSWORD = os.environ["BASIC_AUTH_PASSWORD"]
@@ -12,13 +14,23 @@ def is_authenticated(user, password):
     return user == BASIC_AUTH_USER and password == BASIC_AUTH_PASSWORD
 
 
-def list_hosts() -> list[str]:
-    return []  # TODO
+def list_hosts() -> set[str]:
+    """List all unique hosts found in log files. Only considers uncompressed .log files for speed."""
+    result = set()
+    host_re = r'"host":"([^"]+)"'
+    for file in glob.glob(os.path.join(LOG_DIR, "*.log")):
+        with open(file, "r") as f:
+            for line in f:
+                match = re.search(host_re, line)
+                if match:
+                    result.add(match.group(1))
+    return result
 
 
 @route("/")
 @auth_basic(is_authenticated)
 def index():
+    """Index page listing all hosts found in logs."""
     hosts = list_hosts()
 
     if len(hosts) == 0:
@@ -30,6 +42,7 @@ def index():
 @route("/view/<host>")
 @auth_basic(is_authenticated)
 def render_goaccess_for_host(host: str):
+    """Render GoAccess report for a specific host."""
     filter_str = f'"host":"{host}"'
 
     result = subprocess.run(
