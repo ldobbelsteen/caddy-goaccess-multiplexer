@@ -39,7 +39,7 @@ def render_goaccess_for_hostname(hostname: str):
         [
             "sh",
             "-c",
-            f"zgrep -hF '{filter_str}' -- {LOG_DIR}/*.log {LOG_DIR}/*.log.gz | goaccess --log-format=CADDY --output html {' '.join(GOACCESS_OPTIONS)}",
+            f"zgrep -hF '{filter_str}' -- {LOG_DIR}/*.log {LOG_DIR}/*.log.gz | goaccess --log-format=CADDY --output html {' '.join(GOACCESS_OPTIONS)} -",
         ],
         stdout=subprocess.PIPE,
         check=True,
