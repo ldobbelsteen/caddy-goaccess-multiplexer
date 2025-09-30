@@ -12,6 +12,11 @@ RUN apk add --no-cache \
     openssl \
     tzdata
 
+# Install this application's dependencies.
+RUN apk add --no-cache \
+    bash \
+    gzip
+
 # Copy the GoAccess binary from the previous stage.
 COPY --from=goaccess /usr/bin/goaccess /usr/bin/goaccess
 COPY --from=goaccess /usr/share /usr/share
