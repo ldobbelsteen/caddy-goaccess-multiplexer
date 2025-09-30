@@ -7,6 +7,7 @@ import re
 BASIC_AUTH_USER = os.environ["BASIC_AUTH_USER"]
 BASIC_AUTH_PASSWORD = os.environ["BASIC_AUTH_PASSWORD"]
 LOG_DIR = os.environ.get("LOG_DIR", "/logs")
+GEO_IP_DB_PATH = os.environ.get("GEO_IP_DB_PATH")
 
 
 def is_authenticated(user, password):
@@ -18,7 +19,7 @@ def list_hosts() -> set[str]:
     """List all unique hosts found in log files. Only considers uncompressed .log files for speed."""
     result = set()
     host_re = r'"host":"([^"]+)"'
-    for file in glob.glob(os.path.join(LOG_DIR, "*.log")):
+    for file in glob(os.path.join(LOG_DIR, "*.log")):
         with open(file, "r") as f:
             for line in f:
                 match = re.search(host_re, line)
@@ -45,12 +46,17 @@ def render_goaccess_for_host(host: str):
     """Render GoAccess report for a specific host."""
     filter_str = f'"host":"{host}"'
 
+    command = [
+        "sh",
+        "-c",
+        f"zgrep -hF '{filter_str}' -- {LOG_DIR}/*.log {LOG_DIR}/*.log.gz | goaccess --log-format=CADDY --output html",
+    ]
+    if GEO_IP_DB_PATH:
+        command[-1] += f" --geoip-database {GEO_IP_DB_PATH}"
+    command[-1] += " -"
+
     result = subprocess.run(
-        [
-            "sh",
-            "-c",
-            f"zgrep -hF '{filter_str}' -- {LOG_DIR}/*.log {LOG_DIR}/*.log.gz | goaccess --log-format=CADDY --output html -",
-        ],
+        command,
         stdout=subprocess.PIPE,
         check=True,
     )
