@@ -2,6 +2,7 @@ from glob import glob
 from bottle import route, run, auth_basic
 import os
 import subprocess
+import gzip
 import re
 from cachetools import cached, TTLCache
 
@@ -18,15 +19,24 @@ def is_authenticated(user, password):
 
 @cached(cache=TTLCache(maxsize=1, ttl=1800))
 def list_hosts() -> set[str]:
-    """List all unique hosts found in log files. Only considers uncompressed .log files for speed."""
+    """List all unique hosts found in log files."""
     result = set()
     host_re = r'"host":"([^"]+)"'
+
     for file in glob(os.path.join(LOG_DIR, "*.log")):
         with open(file, "r") as f:
             for line in f:
                 match = re.search(host_re, line)
                 if match:
                     result.add(match.group(1))
+
+    for file in glob(os.path.join(LOG_DIR, "*.log.gz")):
+        with gzip.open(file, "rt") as f:
+            for line in f:
+                match = re.search(host_re, line)
+                if match:
+                    result.add(match.group(1))
+
     return result
 
 
