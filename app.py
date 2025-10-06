@@ -3,6 +3,7 @@ from bottle import route, run, auth_basic
 import os
 import subprocess
 import re
+from cachetools import cached, TTLCache
 
 BASIC_AUTH_USER = os.environ["BASIC_AUTH_USER"]
 BASIC_AUTH_PASSWORD = os.environ["BASIC_AUTH_PASSWORD"]
@@ -15,6 +16,7 @@ def is_authenticated(user, password):
     return user == BASIC_AUTH_USER and password == BASIC_AUTH_PASSWORD
 
 
+@cached(cache=TTLCache(maxsize=1, ttl=1800))
 def list_hosts() -> set[str]:
     """List all unique hosts found in log files. Only considers uncompressed .log files for speed."""
     result = set()

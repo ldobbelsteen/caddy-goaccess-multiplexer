@@ -1,1 +1,2 @@
 bottle==0.13.4
+cachetools==6.2.0
