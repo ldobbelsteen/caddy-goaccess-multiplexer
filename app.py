@@ -50,6 +50,7 @@ def index():
         return "No hosts found in logs."
 
     sorted_hosts = sorted(hosts)
+    sorted_hosts.insert(0, "All")
 
     return "<br>".join(f"<a href='/view/{host}'>{host}</a>" for host in sorted_hosts)
 
@@ -58,7 +59,10 @@ def index():
 @auth_basic(is_authenticated)
 def render_goaccess_for_host(host: str):
     """Render GoAccess report for a specific host."""
-    filter_str = f'"host":"{host}"'
+    if host == "All":
+        filter_str = ""
+    else:
+        filter_str = f'"host":"{host}"'
 
     command = [
         "sh",
