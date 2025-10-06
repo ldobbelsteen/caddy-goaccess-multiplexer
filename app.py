@@ -37,7 +37,9 @@ def index():
     if len(hosts) == 0:
         return "No hosts found in logs."
 
-    return "<br>".join(f"<a href='/view/{host}'>{host}</a>" for host in hosts)
+    sorted_hosts = sorted(hosts)
+
+    return "<br>".join(f"<a href='/view/{host}'>{host}</a>" for host in sorted_hosts)
 
 
 @route("/view/<host>")
