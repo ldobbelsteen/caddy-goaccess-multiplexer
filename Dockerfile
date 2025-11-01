@@ -2,7 +2,7 @@
 FROM docker.io/allinurl/goaccess:latest as goaccess
 
 # Use a Python base for our image.
-FROM docker.io/python:3.13-alpine
+FROM docker.io/python:3.14-alpine
 
 # Install the same dependencies as the GoAccess image (see https://github.com/allinurl/goaccess/blob/master/Dockerfile).
 RUN apk add --no-cache \
