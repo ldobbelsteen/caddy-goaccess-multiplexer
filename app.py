@@ -22,7 +22,7 @@ def is_authenticated(user, password):
 def list_hosts() -> set[str]:
     """List all unique hosts found in log files."""
     result = set()
-    host_re = r'"host":"([^"]+)(?::\d+)?"'
+    host_re = r'"host":"([^":]+)(?::\d+)?"'
 
     for file in glob(os.path.join(LOG_DIR, "*.log")):
         with open(file, "r") as f:
