@@ -1,0 +1,8 @@
+[project]
+name = "caddy-goaccess-multiplexer"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = [
+    "bottle==0.13.4",
+    "cachetools==7.0.5"
+]

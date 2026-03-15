@@ -1,8 +1,8 @@
 # Take official Alpine-based GoAccess image as source of the binary.
-FROM docker.io/allinurl/goaccess:latest as goaccess
+FROM docker.io/allinurl/goaccess:latest AS goaccess
 
-# Use a Python base for our image.
-FROM docker.io/python:3.13-alpine
+# Use a uv base for our image.
+FROM docker.io/astral/uv:python3.14-alpine
 
 # Install the same dependencies as the GoAccess image (see https://github.com/allinurl/goaccess/blob/master/Dockerfile).
 RUN apk add --no-cache \
@@ -23,11 +23,11 @@ COPY --from=goaccess /usr/share /usr/share
 COPY --from=goaccess /usr/share/zoneinfo /usr/share/zoneinfo
 
 # Install Python dependencies.
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+COPY pyproject.toml uv.lock ./
+RUN uv sync --locked --no-dev
 
 # Copy and run the application code.
 COPY app.py .
 STOPSIGNAL SIGINT
 EXPOSE 4876
-CMD ["python", "app.py"]
+CMD ["uv", "run", "app.py"]

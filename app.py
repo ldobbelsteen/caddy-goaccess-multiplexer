@@ -1,10 +1,11 @@
-from glob import glob
-from bottle import route, run, auth_basic
-import os
-import subprocess
 import gzip
+import os
 import re
-from cachetools import cached, TTLCache
+import subprocess
+from glob import glob
+
+from bottle import auth_basic, route, run
+from cachetools import TTLCache, cached
 
 BASIC_AUTH_USER = os.environ["BASIC_AUTH_USER"]
 BASIC_AUTH_PASSWORD = os.environ["BASIC_AUTH_PASSWORD"]
@@ -21,7 +22,7 @@ def is_authenticated(user, password):
 def list_hosts() -> set[str]:
     """List all unique hosts found in log files."""
     result = set()
-    host_re = r'"host":"([^"]+)"'
+    host_re = r'"host":"([^"]+)(?::\d+)?"'
 
     for file in glob(os.path.join(LOG_DIR, "*.log")):
         with open(file, "r") as f:
@@ -62,7 +63,7 @@ def render_goaccess_for_host(host: str):
     if host == "All":
         filter_str = ""
     else:
-        filter_str = f'"host":"{host}"'
+        filter_str = f'"host":"{host}'
 
     command = [
         "sh",
