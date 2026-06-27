@@ -4,18 +4,11 @@ import re
 import subprocess
 from glob import glob
 
-from bottle import auth_basic, route, run
+from bottle import route, run
 from cachetools import TTLCache, cached
 
-BASIC_AUTH_USER = os.environ["BASIC_AUTH_USER"]
-BASIC_AUTH_PASSWORD = os.environ["BASIC_AUTH_PASSWORD"]
 LOG_DIR = os.environ.get("LOG_DIR", "/logs")
 GEO_IP_DB_PATH = os.environ.get("GEO_IP_DB_PATH")
-
-
-def is_authenticated(user, password):
-    """Basic authentication function for Bottle."""
-    return user == BASIC_AUTH_USER and password == BASIC_AUTH_PASSWORD
 
 
 @cached(cache=TTLCache(maxsize=1, ttl=1800))
@@ -42,7 +35,6 @@ def list_hosts() -> set[str]:
 
 
 @route("/")
-@auth_basic(is_authenticated)
 def index():
     """Index page listing all hosts found in logs."""
     hosts = list_hosts()
@@ -57,7 +49,6 @@ def index():
 
 
 @route("/view/<host>")
-@auth_basic(is_authenticated)
 def render_goaccess_for_host(host: str):
     """Render GoAccess report for a specific host."""
     if host == "All":
